@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -118,8 +119,20 @@ namespace ilacTakibi.ViewModels
             Device.BeginInvokeOnMainThread(async () =>
             {
                 var list = await _cacheService.GetListOnCache();
+                List<MedicineItemGroupedModel> orderedList = new List<MedicineItemGroupedModel>();
                 if (list != null)
-                    UsedMedicineList = new ObservableCollection<MedicineItemGroupedModel>(list);
+                {
+                    list.ForEach(y =>
+                    {
+                        var newGroup = new MedicineItemGroupedModel();
+                        y.Where(x=> x.IlacTarihi.date <= DateTime.Now ).OrderByDescending(z => z.IlacTarihi.date).ForEach(item => { 
+                            newGroup.Add(item);
+                            newGroup.Date = item.IlacTarihi.date;
+                        });
+                        orderedList.Add(newGroup);
+                    });
+                    UsedMedicineList = new ObservableCollection<MedicineItemGroupedModel>(orderedList);
+                }
             });
         });
 

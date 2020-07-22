@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace ilacTakibi.DataModel
 {
@@ -9,7 +10,8 @@ namespace ilacTakibi.DataModel
 
         public MedicineItemCacheModel(MedicineItemGroupedModel content)
         {
-            this.date = content.Date;
+            if (content.Any())
+                this.date = content[0].IlacTarihi.date.Date;
             this.content = content;
         }
     }

@@ -46,11 +46,12 @@ namespace ilacTakibi.Services
         {
             var listData = await LocalMachineCache.GetAllObjects<MedicineItemCacheModel>();
             List<MedicineItemGroupedModel> returnedList = new List<MedicineItemGroupedModel>();
-            listData.ForEach(item => {
+            listData.ForEach(item =>
+            {
                 item.content.Date = item.date;
                 returnedList.Add(item.content);
             });
-            return returnedList.OrderByDescending(x => x.Date);
+            return returnedList;
         }
 
         private string ToMedicineItemKey(MedicineItemGroupedModel model)
@@ -76,10 +77,39 @@ namespace ilacTakibi.Services
         {
             var allkeys = (await LocalMachineCache.GetAllKeys()).ToList();
 
-            medicineItems.ForEach(item =>
+            medicineItems.ForEach(async (item) =>
             {
-                if (allkeys.Contains(ToMedicineItemKey(item)) == false)
-                    SaveDataItem(item);
+                var itemKey = ToMedicineItemKey(item);
+                if (allkeys.Contains(itemKey))
+                {
+                    var cachedModel = await LocalMachineCache.GetObject<MedicineItemCacheModel>(itemKey);
+                    if (cachedModel.content != null && cachedModel.content.Any())
+                    {
+                        item.ForEach(i =>
+                        {
+                            var result = cachedModel.content.Where(r => 
+                            {
+                                var rDate = new DateTime(r.IlacTarihi.date.Year, r.IlacTarihi.date.Month, r.IlacTarihi.date.Day, r.IlacTarihi.date.Hour, r.IlacTarihi.date.Minute,0);
+                                var iDate = new DateTime(i.IlacTarihi.date.Year, i.IlacTarihi.date.Month, i.IlacTarihi.date.Day, i.IlacTarihi.date.Hour, i.IlacTarihi.date.Minute, 0);
+                                return rDate.Equals(iDate) && r.ilacIsmi.Equals(i.ilacIsmi);
+                            });
+                            if (result.Any() == false)
+                            {
+                                cachedModel.date = i.IlacTarihi.date;
+                                cachedModel.content.Add(i);
+                            }
+                        });
+                        SaveDataItem(cachedModel.content, key: itemKey);
+                    }
+                    else
+                    {
+                        SaveDataItem(item, key: itemKey);
+                    }
+                }
+                else
+                {
+                    SaveDataItem(item, key: itemKey);
+                }
             });
         }
 

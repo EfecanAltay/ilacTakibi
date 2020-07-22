@@ -13,12 +13,12 @@
     </ContentPage.Resources>
     <ContentPage.Content>
         <StackLayout>
-            <ListView HasUnevenRows="True" 
-                      IsRefreshing="{Binding IsBusy}"
-                      IsPullToRefreshEnabled="{Binding IsBusy}" 
-                      SeparatorVisibility="None"
-                      IsGroupingEnabled="True"
-                      ItemsSource="{Binding UsedMedicineList}">
+            <ListView
+                  HasUnevenRows="True"
+                  SeparatorVisibility="None"
+                  SelectionMode="None"
+                  IsGroupingEnabled="True"
+                  ItemsSource="{Binding UsedMedicineList}">
                 <ListView.GroupHeaderTemplate>
                     <DataTemplate>
                         <ViewCell>
@@ -31,12 +31,19 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
-                            <StackLayout Margin="50" Orientation="Horizontal">
-                                <Label Text="{Binding IsUsed}"/>
-                                <Label Text="{Binding isim}"/>
-                                <Label Text="{Binding soyisim}"/>
-                                <Label Text="{Binding ilacIsmi}"/>
-                                <Label Text="{Binding IlacTarihi.date,StringFormat='tarih : {0:d/M/yyyy HH:mm:ss}'}"/>
+                            <StackLayout Orientation="Horizontal">
+                                <StackLayout Spacing="0" Margin="10,0,10,0">
+                                    <BoxView HorizontalOptions="Center" WidthRequest="3" VerticalOptions="FillAndExpand" BackgroundColor="Gray"/>
+                                    <Label Text="{Binding IlacTarihi.date,StringFormat='{0:HH:mm}'}" VerticalOptions="Center"/>
+                                    <BoxView HorizontalOptions="Center" WidthRequest="3" VerticalOptions="FillAndExpand" BackgroundColor="Gray"/>
+                                </StackLayout>
+                                <StackLayout Margin="30" HorizontalOptions="FillAndExpand" >
+                                    <Frame CornerRadius="10" Padding="10" HorizontalOptions="FillAndExpand" VerticalOptions="Center" BackgroundColor="Orange" >
+                                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                            <Label Text="{Binding ilacIsmi}" VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand"/>
+                                        </StackLayout>
+                                    </Frame>
+                                </StackLayout>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>
