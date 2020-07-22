@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:ilacTakibi.ViewModels" xmlns:converters="clr-namespace:ilacTakibi.Converters"
+             x:Class="ilacTakibi.Pages.UsedMedicineListPage"
+             Title="Kullanım Takibi">
+     <ContentPage.BindingContext>
+        <viewmodels:MedicineListPageViewModel></viewmodels:MedicineListPageViewModel>
+    </ContentPage.BindingContext>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:DateGroupHeaderConverter x:Key="DateGroupHeaderConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <StackLayout>
+            <ListView HasUnevenRows="True" 
+                      IsRefreshing="{Binding IsBusy}"
+                      IsPullToRefreshEnabled="{Binding IsBusy}" 
+                      SeparatorVisibility="None"
+                      IsGroupingEnabled="True"
+                      ItemsSource="{Binding UsedMedicineList}">
+                <ListView.GroupHeaderTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="Gray">
+                                <Label Margin="10" Text="{Binding Date ,Converter={x:StaticResource Key='DateGroupHeaderConverter'}}" HorizontalTextAlignment="Center" TextColor="White"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.GroupHeaderTemplate>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Margin="50" Orientation="Horizontal">
+                                <Label Text="{Binding IsUsed}"/>
+                                <Label Text="{Binding isim}"/>
+                                <Label Text="{Binding soyisim}"/>
+                                <Label Text="{Binding ilacIsmi}"/>
+                                <Label Text="{Binding IlacTarihi.date,StringFormat='tarih : {0:d/M/yyyy HH:mm:ss}'}"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Button Command="{Binding ClearAllDataCommand}" Text="Clear ALL Data"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

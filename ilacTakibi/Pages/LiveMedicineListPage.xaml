@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ilacTakibi.ViewModels" xmlns:converters="clr-namespace:ilacTakibi.Converters"
+             Title="Takip Eden İlaçlar"
+             x:Name="LiveMedicineListPageKey"
+             x:Class="ilacTakibi.Pages.LiveMedicineListPage">
+    <ContentPage.BindingContext>
+        <viewmodels:MedicineListPageViewModel></viewmodels:MedicineListPageViewModel>
+    </ContentPage.BindingContext>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:DateGroupHeaderConverter x:Key="DateGroupHeaderConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <ListView IsPullToRefreshEnabled="True" IsRefreshing="{Binding IsBusy}"
+                  RefreshCommand="{Binding GetLiveMedicineList}"
+                  HasUnevenRows="True"
+                  SeparatorVisibility="None"
+                  IsGroupingEnabled="True"
+                  ItemsSource="{Binding LiveMedicineList}">
+            <ListView.GroupHeaderTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="Gray">
+                            <Label Margin="10" Text="{Binding Date ,Converter={x:StaticResource Key='DateGroupHeaderConverter'}}" HorizontalTextAlignment="Center" TextColor="White"/>
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.GroupHeaderTemplate>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout>
+                            <StackLayout Margin="50,30,50,0" Orientation="Horizontal">
+                                <Label Text="{Binding IsUsed}"/>
+                                <Label Text="{Binding isim}"/>
+                                <Label Text="{Binding soyisim}"/>
+                                <Label Text="{Binding ilacIsmi}"/>
+                                <Label Text="{Binding IlacTarihi.date,StringFormat='tarih : {0:d/M/yyyy HH:mm:ss}'}"/>
+                            </StackLayout>
+                            <StackLayout Orientation="Horizontal" HorizontalOptions="CenterAndExpand">
+                                <Button IsVisible="{Binding IsNotUsed}" Text="Kullandım" TextColor="White" BackgroundColor="Green" Command="{Binding Source={x:Reference LiveMedicineListPageKey}, Path=BindingContext.UsedCommand}" CommandParameter="{Binding .}"/>
+                                <Button Text="Bildir" TextColor="White" BackgroundColor="Gray" Command="{Binding Source={x:Reference LiveMedicineListPageKey}, Path=BindingContext.NotifyCommand}" CommandParameter="{Binding .}"/>
+                            </StackLayout>
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </ContentPage.Content>
+</ContentPage>
