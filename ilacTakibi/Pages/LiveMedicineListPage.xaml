@@ -10,12 +10,15 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:DateGroupHeaderConverter x:Key="DateGroupHeaderConverter"/>
+            <converters:MedicineListItemNowConverter x:Key="MedicineListItemNowConverter"/>
+            <converters:MedicineListItemUsedConverter x:Key="MedicineListItemUsedConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.Content>
         <ListView
+            x:Name="medicineList"
                   IsPullToRefreshEnabled="True" IsRefreshing="{Binding IsBusy}"
-                  RefreshCommand="{Binding GetLiveMedicineList}"
+                  RefreshCommand="{Binding GetUsedMedicineListLastForLive}"
                   HasUnevenRows="True"
                   SeparatorVisibility="None"
                   SelectionMode="None"
@@ -33,38 +36,41 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
-                        <StackLayout Orientation="Horizontal">
-                            <StackLayout Spacing="0" Margin="10,0,10,0">
-                                <BoxView HorizontalOptions="Center" WidthRequest="3" VerticalOptions="FillAndExpand" BackgroundColor="Gray"/>
-                                <Label Text="{Binding IlacTarihi.date,StringFormat='{0:HH:mm}'}" VerticalOptions="Center"/>
-                                <BoxView HorizontalOptions="Center" WidthRequest="3" VerticalOptions="FillAndExpand" BackgroundColor="Gray"/>
-                            </StackLayout>
-                            <StackLayout Margin="10" HorizontalOptions="FillAndExpand" >
-                                <Frame CornerRadius="10" Padding="10" HorizontalOptions="FillAndExpand" VerticalOptions="Center" BackgroundColor="Orange" >
-                                    <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                                        <Label Text="{Binding ilacIsmi}" VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand"/>
-                                        <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand">
-                                            <StackLayout Margin="0,10,0,10" IsVisible="{Binding IsNotUsed}">
-                                                <Frame Padding="2" CornerRadius="45">
-                                                    <Image Source="ic_success" />
-                                                </Frame>
-                                                <StackLayout.GestureRecognizers>
-                                                    <TapGestureRecognizer  Command="{Binding Source={x:Reference LiveMedicineListPageKey}, Path=BindingContext.UsedCommand}" CommandParameter="{Binding .}"/>
-                                                </StackLayout.GestureRecognizers>
-                                            </StackLayout>
-                                            <StackLayout Margin="0,10,0,10" >
-                                                <Frame Padding="2" CornerRadius="45">
-                                                    <Image Source="ic_notify" />
-                                                </Frame>
-                                                <StackLayout.GestureRecognizers>
-                                                    <TapGestureRecognizer  Command="{Binding Source={x:Reference LiveMedicineListPageKey}, Path=BindingContext.NotifyCommand}" CommandParameter="{Binding .}"/>
-                                                </StackLayout.GestureRecognizers>
+                        <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                            <BoxView BackgroundColor="{Binding .,Converter={x:StaticResource Key='MedicineListItemNowConverter'}, ConverterParameter='Background'}"/>
+                            <StackLayout Orientation="Horizontal">
+                                <StackLayout Spacing="0" Margin="10,0,10,0">
+                                    <BoxView HorizontalOptions="Center" WidthRequest="3" VerticalOptions="FillAndExpand" BackgroundColor="Gray"/>
+                                    <Label Text="{Binding IlacTarihi.date,StringFormat='{0:HH:mm}'}" VerticalOptions="Center"/>
+                                    <BoxView HorizontalOptions="Center" WidthRequest="3" VerticalOptions="FillAndExpand" BackgroundColor="Gray"/>
+                                </StackLayout>
+                                <StackLayout Margin="10" HorizontalOptions="FillAndExpand" >
+                                    <Frame CornerRadius="10" Padding="10" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="{Binding IsUsed,Converter={x:StaticResource Key='MedicineListItemUsedConverter'}, ConverterParameter='Background'}" >
+                                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                                            <Label Text="{Binding ilacIsmi}" VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand"/>
+                                            <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand">
+                                                <StackLayout Margin="0,10,0,10" IsVisible="{Binding . ,Converter={x:StaticResource Key='MedicineListItemNowConverter'},ConverterParameter='Done'}">
+                                                    <Frame Padding="2" CornerRadius="45">
+                                                        <Image Source="ic_success" />
+                                                    </Frame>
+                                                    <StackLayout.GestureRecognizers>
+                                                        <TapGestureRecognizer  Command="{Binding Source={x:Reference LiveMedicineListPageKey}, Path=BindingContext.UsedCommand}" CommandParameter="{Binding .}"/>
+                                                    </StackLayout.GestureRecognizers>
+                                                </StackLayout>
+                                                <StackLayout Margin="0,10,0,10" IsVisible="{Binding . ,Converter={x:StaticResource Key='MedicineListItemNowConverter'},ConverterParameter='SetAlert'}">
+                                                    <Frame Padding="2" CornerRadius="45">
+                                                        <Image Source="ic_notify" />
+                                                    </Frame>
+                                                    <StackLayout.GestureRecognizers>
+                                                        <TapGestureRecognizer  Command="{Binding Source={x:Reference LiveMedicineListPageKey}, Path=BindingContext.NotifyCommand}" CommandParameter="{Binding .}"/>
+                                                    </StackLayout.GestureRecognizers>
+                                                </StackLayout>
                                             </StackLayout>
                                         </StackLayout>
-                                    </StackLayout>
-                                </Frame>
+                                    </Frame>
+                                </StackLayout>
                             </StackLayout>
-                        </StackLayout>
+                        </Grid>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>

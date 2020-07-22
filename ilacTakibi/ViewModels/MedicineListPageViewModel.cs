@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Timers;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using ilacTakibi.DataModel;
 using ilacTakibi.Services;
@@ -12,11 +14,14 @@ using Xamarin.Forms.Internals;
 
 namespace ilacTakibi.ViewModels
 {
-    public class MedicineListPageViewModel : BaseViewModel
+    public class MedicineListPageViewModel : BaseViewModel, IDisposable
     {
         private IMedicineTrackingAPI _api = null;
         private CacheService _cacheService = null;
         INotificationManager notificationManager;
+
+        public Action<MedicineItemModel> CurrentMedicineAction;
+        public Timer timer;
 
         private ObservableCollection<MedicineItemGroupedModel> liveMedicineList { get; set; }
         public ObservableCollection<MedicineItemGroupedModel> LiveMedicineList
@@ -40,6 +45,8 @@ namespace ilacTakibi.ViewModels
             }
         }
 
+        public ObservableCollection<MedicineItemGroupedModel> MedicineList { get; set; }
+
         public MedicineListPageViewModel()
         {
             _api = RestService.For<IMedicineTrackingAPI>("http://gelisimedestekol.com/index.php");
@@ -51,8 +58,19 @@ namespace ilacTakibi.ViewModels
                 var evtData = (NotificationEventArgs)eventArgs;
                 ShowNotification(evtData.Title, evtData.Message);
             };
-            GetLiveMedicineList.Execute(null);
+            GetLivedMedicineList.Execute(null);
             GetUsedMedicineList.Execute(null);
+            timer = new Timer(1000);
+            timer.Elapsed += Timer_Elapsed;
+            timer.Start();
+        }
+
+        private bool haveScrollAction = false;
+
+        private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if(DateTime.Now.Second == 0)
+                GetLivedMedicineList.Execute(null);
         }
 
         void ShowNotification(string title, string message)
@@ -73,7 +91,7 @@ namespace ilacTakibi.ViewModels
             notificationManager.ScheduleNotification(title, message);
         }
 
-        public ICommand GetLiveMedicineList => new Command(async () =>
+        public async Task FetchMedicineList()
         {
             IsBusy = true;
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
@@ -84,7 +102,7 @@ namespace ilacTakibi.ViewModels
                     if (!response.isError)
                     {
                         var listData = response.value;
-                        LiveMedicineList = new ObservableCollection<MedicineItemGroupedModel>();
+                        MedicineList = new ObservableCollection<MedicineItemGroupedModel>();
                         listData.GroupBy(x => x.IlacTarihi.date.Date).ForEach((y) =>
                         {
                             var group = new MedicineItemGroupedModel() { Date = y.Key };
@@ -92,10 +110,10 @@ namespace ilacTakibi.ViewModels
                             {
                                 group.Add(m);
                             });
-                            LiveMedicineList.Add(group);
+                            MedicineList.Add(group);
                         });
-                        if (LiveMedicineList != null)
-                            _cacheService.SaveDataItems(LiveMedicineList);
+                        if (MedicineList != null)
+                            _cacheService.SaveDataItems(MedicineList.OrderBy(x => x.Date));
                     }
                     else
                     {
@@ -112,7 +130,7 @@ namespace ilacTakibi.ViewModels
                 //..
                 IsBusy = false;
             }
-        });
+        }
 
         public ICommand GetUsedMedicineList => new Command(() =>
         {
@@ -125,16 +143,54 @@ namespace ilacTakibi.ViewModels
                     list.ForEach(y =>
                     {
                         var newGroup = new MedicineItemGroupedModel();
-                        y.Where(x=> x.IlacTarihi.date <= DateTime.Now ).OrderByDescending(z => z.IlacTarihi.date).ForEach(item => { 
+                        y.Where(x => x.IlacTarihi.date <= DateTime.Now).OrderByDescending(z => z.IlacTarihi.date).ForEach(item =>
+                        {
                             newGroup.Add(item);
                             newGroup.Date = item.IlacTarihi.date;
                         });
                         orderedList.Add(newGroup);
                     });
-                    UsedMedicineList = new ObservableCollection<MedicineItemGroupedModel>(orderedList);
+                    UsedMedicineList = new ObservableCollection<MedicineItemGroupedModel>(orderedList.OrderByDescending(x => x.Date));
                 }
             });
         });
+
+        public ICommand GetLivedMedicineList => new Command(() =>
+       {
+           haveScrollAction = true;
+           Task.Run(async () =>
+           {
+               await FetchMedicineList();
+               var list = await _cacheService.GetListOnCache();
+               List<MedicineItemGroupedModel> orderedList = new List<MedicineItemGroupedModel>();
+               if (list != null)
+               {
+                   list.ForEach(y =>
+                    {
+                        var newGroup = new MedicineItemGroupedModel();
+                        y.OrderBy(z => z.IlacTarihi.date).ForEach(item =>
+                        {
+                            newGroup.Add(item);
+                            newGroup.Date = item.IlacTarihi.date;
+                            DateTime date = newGroup.Date;
+                            var nowDate = DateTime.Now;
+                            var vDate = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, 0);
+                            var nDate = new DateTime(nowDate.Year, nowDate.Month, nowDate.Day, nowDate.Hour, nowDate.Minute, 0);
+                            if (vDate.Equals(nDate) && haveScrollAction)
+                            {
+                                CurrentMedicineAction?.Invoke(item);
+                                haveScrollAction = false;
+                            }
+                        });
+                        orderedList.Add(newGroup);
+                    });
+                   Device.BeginInvokeOnMainThread(async () =>
+                   {
+                       LiveMedicineList = new ObservableCollection<MedicineItemGroupedModel>(orderedList.OrderBy(x => x.Date));
+                   });
+               }
+           });
+       });
 
         public ICommand NotifyCommand => new Command((item) =>
         {
@@ -148,15 +204,18 @@ namespace ilacTakibi.ViewModels
             if (data.IsUsed == false)
             {
                 data.IsUsed = true;
-                liveMedicineList.ForEach(x =>
+                LiveMedicineList.ForEach(x =>
                 {
                     if (x.Contains(data))
                     {
+                        var index = x.IndexOf(data);
+                        x.Remove(data);
                         data.IsUsed = true;
+                        x.Insert(index, data);
                         _cacheService.SaveDataItem(x);
                         return;
                     }
-                 });
+                });
             }
         });
 
@@ -164,5 +223,11 @@ namespace ilacTakibi.ViewModels
         {
             await _cacheService.ClearAllData();
         });
+
+        public void Dispose()
+        {
+            timer.Stop();
+            timer.Dispose();
+        }
     }
 }

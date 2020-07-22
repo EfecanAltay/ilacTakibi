@@ -51,12 +51,13 @@ namespace ilacTakibi.Services
                 item.content.Date = item.date;
                 returnedList.Add(item.content);
             });
+
             return returnedList;
         }
 
         private string ToMedicineItemKey(MedicineItemGroupedModel model)
         {
-            return model.Date.Ticks.ToString("X2");
+            return model.Date.Date.Ticks.ToString("X2");
         }
 
         public async Task<MedicineItemGroupedModel> GetMedicineItemOnCache(string key)
@@ -95,7 +96,7 @@ namespace ilacTakibi.Services
                             });
                             if (result.Any() == false)
                             {
-                                cachedModel.date = i.IlacTarihi.date;
+                                cachedModel.date = i.IlacTarihi.date.Date;
                                 cachedModel.content.Add(i);
                             }
                         });

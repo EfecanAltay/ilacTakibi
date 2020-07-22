@@ -19,7 +19,6 @@ namespace ilacTakibi.Services
             set {
                 isUsed = value;
                 OnPropertyChanged(nameof(IsUsed));
-                OnPropertyChanged(nameof(IsNotUsed));
             }
         }
 

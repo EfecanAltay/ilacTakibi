@@ -10,7 +10,7 @@ using Xamarin.Forms.Internals;
 namespace ilacTakibi.DataModel
 {
     [Serializable]
-    public class MedicineItemGroupedModel : ObservableCollection<MedicineItemModel>, INotifyCollectionChanged
+    public class MedicineItemGroupedModel : ObservableCollection<MedicineItemModel>
     {
         private DateTime date;
         public DateTime Date {
@@ -18,20 +18,8 @@ namespace ilacTakibi.DataModel
             set
             {
                 date = value;
-                OnPropertyChanged(nameof(Date));
+                OnPropertyChanged(new PropertyChangedEventArgs(nameof(Date)));
             }
         }
-
-        #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            var changed = PropertyChanged;
-            if (changed == null)
-                return;
-
-            changed.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
     }
 }

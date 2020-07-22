@@ -1,14 +1,17 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:ilacTakibi.ViewModels" xmlns:converters="clr-namespace:ilacTakibi.Converters"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ilacTakibi.ViewModels" 
+             xmlns:converters="clr-namespace:ilacTakibi.Converters"
              x:Class="ilacTakibi.Pages.UsedMedicineListPage"
              Title="Kullanım Takibi">
      <ContentPage.BindingContext>
-        <viewmodels:MedicineListPageViewModel></viewmodels:MedicineListPageViewModel>
+        <viewmodels:MedicineListPageViewModel />
     </ContentPage.BindingContext>
     <ContentPage.Resources>
         <ResourceDictionary>
-            <converters:DateGroupHeaderConverter x:Key="DateGroupHeaderConverter"/>
+            <converters:DateGroupHeaderConverter x:Key="DateGroupHeaderConverter" />
+            <converters:MedicineListItemUsedConverter x:Key="MedicineListItemUsedConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.Content>
@@ -38,7 +41,8 @@
                                     <BoxView HorizontalOptions="Center" WidthRequest="3" VerticalOptions="FillAndExpand" BackgroundColor="Gray"/>
                                 </StackLayout>
                                 <StackLayout Margin="30" HorizontalOptions="FillAndExpand" >
-                                    <Frame CornerRadius="10" Padding="10" HorizontalOptions="FillAndExpand" VerticalOptions="Center" BackgroundColor="Orange" >
+                                    <Frame CornerRadius="10" Padding="10" HorizontalOptions="FillAndExpand" VerticalOptions="Center" 
+                                           BackgroundColor="{Binding IsUsed, Converter={x:StaticResource Key='MedicineListItemUsedConverter'}, ConverterParameter='Background' }" >
                                         <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                                             <Label Text="{Binding ilacIsmi}" VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand"/>
                                         </StackLayout>
