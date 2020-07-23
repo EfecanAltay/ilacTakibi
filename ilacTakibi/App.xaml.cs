@@ -9,7 +9,7 @@ namespace ilacTakibi
         public static INavigation CurrentNavigation = null;
         public static CacheService cacheService = null;
         public static MedicineListPageViewModel referenceViewModel = null;
-
+        public static bool isFocusToApp = true;
         public App()
         {
             InitializeComponent();
@@ -24,10 +24,12 @@ namespace ilacTakibi
 
         protected override void OnSleep()
         {
+            isFocusToApp = false;
         }
 
         protected override void OnResume()
         {
+            isFocusToApp = true;
         }
     }
 }

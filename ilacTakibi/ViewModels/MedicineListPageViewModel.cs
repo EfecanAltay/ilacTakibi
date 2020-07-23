@@ -77,7 +77,7 @@ namespace ilacTakibi.ViewModels
             });
         }
 
-        private void NotifyAction()
+        public void NotifyAction()
         {
             if (currentlyItems.Any())
             {
@@ -197,16 +197,10 @@ namespace ilacTakibi.ViewModels
             }
         }
 
-        public ICommand NotifyWhenNotUsedMedicinesCommand => new Command((item) =>
-        {
-            var data = item as MedicineItemModel;
-            NotifyAction();
-        });
-
         public ICommand AddForAlertCommand => new Command((item) =>
         {
             var data = item as MedicineItemModel;
-            NotifyAction();
+            //NotifyAction();
         });
 
         public ICommand UsedCommand => new Command((item) =>

@@ -46,7 +46,8 @@ namespace ilacTakibi.Droid
                 await viewModel.FetchMedicineList();
                 await viewModel.UpdateLiveMedicineList();
                 Log.Debug(TAG, "Updated MedicineList");
-                viewModel.NotifyWhenNotUsedMedicinesCommand.Execute(null);
+                if(App.isFocusToApp == false)
+                    viewModel.NotifyAction();
             }
         }
 
