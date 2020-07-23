@@ -1,13 +1,15 @@
 ﻿using Xamarin.Forms;
 using ilacTakibi.Services;
+using ilacTakibi.ViewModels;
 
 namespace ilacTakibi
 {
     public partial class App : Application
     {
         public static INavigation CurrentNavigation = null;
-
         public static CacheService cacheService = null;
+        public static MedicineListPageViewModel referenceViewModel = null;
+
         public App()
         {
             InitializeComponent();

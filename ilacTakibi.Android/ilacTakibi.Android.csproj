@@ -65,6 +65,8 @@
   <ItemGroup>
     <Compile Include="Dependencies\AndroidNotificationManager.cs" />
     <Compile Include="MainActivity.cs" />
+    <Compile Include="MedicineListUpdateService.cs" />
+    <Compile Include="MedicineListUpdateServiceConnection.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
