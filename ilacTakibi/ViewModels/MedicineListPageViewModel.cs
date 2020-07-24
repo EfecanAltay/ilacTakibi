@@ -224,6 +224,47 @@ namespace ilacTakibi.ViewModels
             }
         });
 
+        //Email Section is Test Mode 
+        public ICommand ShareCommand => new Command(async (toEmail) =>
+        {
+            string body = "";
+            UsedMedicineList.ForEach(group =>
+            {
+                body += group.ToString() + "\n";
+            });
+            //if (toEmail != null) for test
+            if(true)
+            {
+                //var s_email = (List<string>)toEmail; for test
+                var s_email = new List<string>();
+                s_email.Add("efecan95.gs@gmail.com");
+                if (s_email.Any())
+                {
+                    try
+                    {
+                        var message = new EmailMessage
+                        {
+                            Subject = "İlaç Kullanım Raporu",
+                            Body = body,
+                            To = s_email,
+                            //Cc = ccRecipients,
+                            //Bcc = bccRecipients
+                        };
+                        await Email.ComposeAsync(message);
+                        await Application.Current.MainPage.DisplayAlert("Başarılı", "Email Gönderildi!", "Tamam");
+                    }
+                    catch (FeatureNotSupportedException fbsEx)
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Hata", fbsEx.Message, "Tamam");
+                    }
+                    catch (Exception ex)
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Hata", ex.Message, "Tamam");
+                    }
+                }
+            }
+        });
+
         public ICommand ClearAllDataCommand => new Command(async () =>
         {
             await _cacheService.ClearAllData();

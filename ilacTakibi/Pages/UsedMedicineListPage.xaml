@@ -5,7 +5,10 @@
              xmlns:converters="clr-namespace:ilacTakibi.Converters"
              x:Class="ilacTakibi.Pages.UsedMedicineListPage"
              Title="Kullanım Takibi">
-     <ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Share" Command="{Binding ShareCommand}"></ToolbarItem>
+    </ContentPage.ToolbarItems>
+    <ContentPage.BindingContext>
         <viewmodels:MedicineListPageViewModel />
     </ContentPage.BindingContext>
     <ContentPage.Resources>
