@@ -6,7 +6,7 @@
              x:Class="ilacTakibi.Pages.UsedMedicineListPage"
              Title="Kullanım Takibi">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Share" Command="{Binding ShareCommand}"></ToolbarItem>
+        <ToolbarItem Text="Paylaş" Command="{Binding ShareCommand}"></ToolbarItem>
     </ContentPage.ToolbarItems>
     <ContentPage.BindingContext>
         <viewmodels:MedicineListPageViewModel />

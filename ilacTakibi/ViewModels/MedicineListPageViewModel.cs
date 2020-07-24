@@ -237,7 +237,11 @@ namespace ilacTakibi.ViewModels
             {
                 //var s_email = (List<string>)toEmail; for test
                 var s_email = new List<string>();
-                s_email.Add("efecan95.gs@gmail.com");
+                var result = await Application.Current.MainPage.DisplayPromptAsync("Mail Gönder", "Lütfen Mail adresi veya adresleri giriniz.\nörnek : example1@example.com;example2@example.com");
+                var mails = result.Trim().Split(';');
+                mails.ForEach(mail => { 
+                    s_email.Add(mail);
+                });
                 if (s_email.Any())
                 {
                     try
@@ -251,7 +255,6 @@ namespace ilacTakibi.ViewModels
                             //Bcc = bccRecipients
                         };
                         await Email.ComposeAsync(message);
-                        await Application.Current.MainPage.DisplayAlert("Başarılı", "Email Gönderildi!", "Tamam");
                     }
                     catch (FeatureNotSupportedException fbsEx)
                     {
